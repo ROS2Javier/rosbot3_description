@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  Description of the Waveshare UGV02 mobile base upon which ROSelito is built.
+
+  Author: Javier Antonio Vargas Rivadineira
+-->
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:include filename="$(find ros3_commons)/urdf/domain.xacro"/>
+
+  <xacro:property name="M" value="0.001"/>
+  <xacro:property name="M_PI" value="3.1415926535897931"/>
+  <xacro:property name="DEG" value="${M_PI / 180.0}"/>
+
+  <xacro:property name="ground_clearance" value="${23.00 * M}"/>
+  <xacro:property name="overall_width" value="${233.00 * M}"/>
+
+  <xacro:property name="fender_height" value="${10.0 * M}"/>
+
+  <xacro:property name="wheel_separation" value="${187.0 * M}"/>
+  <xacro:property name="wheel_diameter" value="${84.0 * M}"/>
+  <xacro:property name="wheelbase" value="${106.00 * M}"/>
+  <xacro:property name="wheel_radius" value="${0.5 * wheel_diameter}"/>
+  <xacro:property name="wheel_thickness" value="${50.00 * M}"/>
+  <xacro:property name="wheel_exposure_length" value="${100.0 * M}"/>
+
+  <xacro:property name="fender_length" value="${202 * M}"/>
+  <xacro:property name="fender_thickness" value="${3.0 * M}"/>
+  <xacro:property name="fender_top_gap" value="${1.0 * M}"/>
+  <xacro:property name="fender_side_gap" value="${5.0 * M}"/>
+
+  <xacro:property name="body_length" value="${200.0 * M}"/>
+  <xacro:property name="body_width" value="${140.00 * M}"/>
+  <xacro:property name="body_height" value="${80.0 * M}"/>
+
+  <xacro:property name="side_fender_thickness" value="${0.5 * (overall_width - body_width)}"/>
+
+  <xacro:property name="fender_extension_width" value="${(233.0 * M - body_width) / 2.0}"/>
+
+  <xacro:property name="fender_gap_y" value="${5.0 * M}"/>
+
+  <xacro:property name="fender_top_width" value="${body_width + 2.0 * (wheel_thickness + fender_side_gap)}"/>
+
+  <xacro:property name="front_slope_length" value="${30.0 * M}"/> 
+  <xacro:property name="front_slope_angle" value="${30.0 * DEG}"/> ```
+
+  <xacro:property name="wheel_axle_z_offset" value="${wheel_radius - 0.5 * body_height - ground_clearance}"/>
+
+  <xacro:property name="small_fender_length" value="${0.5 * (body_length - wheel_exposure_length)}"/>
+
+  <xacro:property name="fender_height_z" value="${body_height}"/> 
+  <xacro:property name="fender_offset_y" value="${0.5 * body_width + 0.5 * side_fender_thickness}"/> 
+
+  <xacro:property name="filler_length" value="${30.0 * M}"/>
+  <xacro:property name="filler_height" value="${35.0 * M}"/> 
+  <xacro:property name="filler_offset" value="${0.5 * body_length + 0.5 * filler_length}"/>
+  <xacro:property name="penetration" value="${5.0 * M}"/>
+
+
+  <xacro:macro
+    name="wheels"
+    params="position"
+  >
+    <xacro:solid_cylinder
+      name="wheel_${position}_left"
+      length="${wheel_thickness}"
+      radius="${wheel_radius}"
+      roll="${90.0 * DEG}"
+      material="Black"
+    />
+
+    <xacro:solid_cylinder
+      name="wheel_${position}_right"
+      length="${wheel_thickness}"
+      radius="${wheel_radius}"
+      roll="${90.0 * DEG}"
+      material="Black"
+    />
+
+    <xacro:solid_cylinder
+      name="wheel_${position}_axle"
+      length="${wheel_separation}"
+      radius="0.005"
+      roll="${90.0 * DEG}"
+      
+    />
+
+    <xacro:joint_continuous
+      name="joint_wheel_${position}_left"
+      parent="wheel_${position}_axle"
+      child="wheel_${position}_left"
+      y="${(wheel_separation + wheel_thickness) * 0.5}"
+      axis="0 1 0"
+    />
+
+    <xacro:joint_continuous
+      name="joint_wheel_${position}_right"
+      parent="wheel_${position}_axle"
+      child="wheel_${position}_right"
+      y="${(wheel_separation + wheel_thickness) * -0.5}"
+      axis="0 1 0"
+    />
+
+
+  </xacro:macro>
+
+  <xacro:wheels position="front"/>
+  <xacro:wheels position="rear"/>
+
+
+
+  <xacro:solid_block
+    name="body"
+    size_x="${body_length}"
+    size_y="${body_width}"
+    size_z="${body_height}"
+    material="White"
+  />
+
+  <xacro:solid_block
+    name="fenders_top"
+    size_x="${fender_length}"
+    size_y="${fender_top_width}"
+    size_z="${fender_thickness}"
+    material="Red"
+  />
+
+
+  <xacro:joint_fixed
+    parent="body"
+    child="fenders_top"
+    z="${0.5 * body_height + 0.5 * fender_thickness}"
+  />
+
+  <xacro:joint_fixed
+    parent="body"
+    child="wheel_front_axle"
+    x="${0.5 * wheelbase}"
+    z="${wheel_axle_z_offset}"
+  />
+
+  <xacro:joint_fixed
+    parent="body"
+    child="wheel_rear_axle"
+    x="${-0.5 * wheelbase}"
+    z="${wheel_axle_z_offset}"
+  />
+
+  <xacro:solid_block
+    name="fender_front_left"
+    size_x="${small_fender_length}"
+    size_y="${0.5 * body_width + 0.5 * side_fender_thickness + fender_gap_y}"
+    size_z="${fender_height_z}"
+    material="Red"
+  />
+  <xacro:joint_fixed
+    parent="body"
+    child="fender_front_left"
+    x="${0.5 * body_length - 0.5 * small_fender_length}"
+    y="${fender_offset_y}"
+    z="0" />
+
+  <xacro:solid_block
+    name="fender_rear_left"
+    size_x="${small_fender_length}"
+    size_y="${0.5 * body_width + 0.5 * side_fender_thickness + fender_gap_y}"
+    size_z="${fender_height_z}"
+    material="Red"
+  />
+  <xacro:joint_fixed
+    parent="body"
+    child="fender_rear_left"
+    x="${-(0.5 * body_length - 0.5 * small_fender_length)}"
+    y="${fender_offset_y}"
+    z="0"
+  />
+  
+  <xacro:solid_block
+    name="fender_front_right"
+    size_x="${small_fender_length}"
+    size_y="${-(0.5 * body_width + 0.5 * side_fender_thickness + fender_gap_y)}"
+    size_z="${fender_height_z}"
+    material="Red"
+  />
+  <xacro:joint_fixed
+    parent="body"
+    child="fender_front_right"
+    x="${0.5 * body_length - 0.5 * small_fender_length}"
+    y="${-fender_offset_y}"
+    z="0"
+  />
+
+  <xacro:solid_block
+    name="fender_rear_right"
+    size_x="${small_fender_length}"
+    size_y="${-(0.5 * body_width + 0.5 * side_fender_thickness + fender_gap_y)}"
+    size_z="${fender_height_z}"
+    material="Red"
+  />
+  <xacro:joint_fixed
+    parent="body"
+    child="fender_rear_right"
+    x="${-(0.5 * body_length - 0.5 * small_fender_length)}"
+    y="${-fender_offset_y}"
+    z="0"
+  />
+
+  <xacro:solid_block
+    name="front_bumper_slope"
+    size_x="${front_slope_length}"
+    size_y="${overall_width}"  
+    size_z="${fender_height_z}" 
+    material="Red" 
+  />
+
+  <xacro:joint_fixed
+    parent="body"
+    child="front_bumper_slope"
+    x="${0.5 * body_length + 0.5 * front_slope_length}" 
+    y="0"
+    z="0" 
+    roll="0" 
+    pitch="${-front_slope_angle}" 
+    yaw="0"
+  />
+
+  <xacro:solid_block
+    name="front_filler"
+    size_x="${filler_length}"
+    size_y="${overall_width}" 
+    size_z="${filler_height}"
+    material="Red"
+  />
+  <xacro:joint_fixed
+    parent="body"
+    child="front_filler"
+    x="${filler_offset}"
+    y="0"
+    z="${-0.5 * body_height + 0.5 * filler_height}" 
+  />
+
+  <link name="base_link"/>
+  <xacro:joint_fixed
+    parent="base_link"
+    child="body"
+    z="${ground_clearance + 0.5 * body_height}"
+  />
+</robot>

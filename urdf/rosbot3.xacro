@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  Description of the ROSelito robot.
+
+  Author: Javier Antonio Vargas Rivadineira
+-->
+
+<robot name="rosbot3" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:include filename="$(find rosbot3_description)/urdf/ugv02.xacro"/>
+
+
+
+  <xacro:property name="payload_base_length" value="${78.0 * M}"/>
+  <xacro:property name="payload_base_width" value="${78.0 * M}"/>
+  <xacro:property name="payload_base_height" value="${19.0 * M}"/>
+
+  <xacro:property name="lidar_radius" value="${38.5 * M}"/>
+  <xacro:property name="lidar_height" value="${39.0 * M}"/>
+
+  <xacro:property name="camera_length" value="${91.0 * M}"/>
+  <xacro:property name="camera_width" value="${17.5 * M}"/>   
+  <xacro:property name="camera_height" value="${28.0 * M}"/>
+
+  <xacro:property name="tower_height" value="${66.0 * M}"/>  
+  <xacro:property name="tower_side" value="${12.0 * M}"/>
+  <xacro:property name="tower_separation_half" value="${35.0 * M}"/> 
+  <xacro:property name="tower_width" value="${5.0 * M}"/>
+  <xacro:property name="tower_pitch" value="${30.0 * DEG}"/>
+
+  <xacro:property name="penetration" value="${5.0 * M}"/>
+
+  <xacro:solid_block
+    name="payload_base"
+    size_x="${payload_base_length}"
+    size_y="${payload_base_width}"
+    size_z="${payload_base_height}"
+    material="Black"
+  />
+
+  <xacro:joint_fixed
+    parent="body"
+    child="payload_base"
+    x="0.06"
+    y="0"
+    z="${0.5 * (body_height + payload_base_height)}"
+  />
+
+  <xacro:solid_cylinder
+    name="lidar"
+    radius="${lidar_radius}"
+    length="${lidar_height}"
+    material="DarkGrey"
+  />
+
+  <xacro:joint_fixed
+    parent="payload_base"
+    child="lidar"
+    x="0.0"
+    y="0.0"
+    z="${0.5 * payload_base_height}"
+  />
+
+  <link name="laser"/>
+  <xacro:joint_fixed
+    parent="lidar"
+    child="laser"
+    z="${lidar_height}"
+  />
+
+  <xacro:solid_block
+    name="camera_tower_left"
+    size_x="${tower_side}"
+    size_y="${tower_width}"
+    size_z="${tower_height}"
+    material="White"
+  />
+  <xacro:joint_fixed
+    parent="body"
+    child="camera_tower_left"
+    x="-0.08"
+    y="${tower_separation_half}"       
+    z="${0.5 * (body_height) + 0.5 * tower_height - penetration}"
+    roll="0"
+    pitch="${tower_pitch}"
+    yaw="0"
+    name="joint_tower_left" 
+  />
+
+  <xacro:solid_block
+    name="camera_tower_right"
+    size_x="${tower_side}"
+    size_y="${tower_width}"
+    size_z="${tower_height}"
+    material="White"
+  />
+  <xacro:joint_fixed
+    parent="body"
+    child="camera_tower_right"
+    x="-0.08"
+    y="${-tower_separation_half}"      
+    z="${0.5 * (body_height) + 0.5 * tower_height - penetration}" 
+    roll="0"
+    pitch="${tower_pitch}"
+    yaw="0"
+    name="joint_tower_right"
+  />
+
+  <xacro:solid_block
+    name="camera_front"
+    size_x="${camera_width}"    
+    size_y="${camera_length}"
+    size_z="${camera_height}"
+  />
+
+  <xacro:joint_fixed
+    parent="camera_tower_left"  
+    child="camera_front"
+    x="0"
+    y="${-tower_separation_half}"
+    z="${0.5 * tower_height + 0.5 * camera_height - penetration}"
+    roll="0"
+    pitch="${-tower_pitch}"
+    yaw="0"
+    name="joint_camera_mount"
+  />
+
+  <xacro:stereo_camera_links 
+    name="camera_front"
+    baseline="0.10"
+  />
+
+
+
+</robot>
