@@ -14,7 +14,3 @@ Then use the commands below to generate the URDF and SDF files in sequence:
 
     xacro rosbot3.xacro > rosbot3.urdf
     gz sdf -p rosbot3.urdf > rosbot3.sdf
-# rosbot3_description
-
-Description URDF do robot
-
